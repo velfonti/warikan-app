@@ -165,6 +165,24 @@
         <h2 class="section-title">履歴</h2>
         <span class="history-count" id="historyCount">0件</span>
       </div>
+
+      <!-- 検索・フィルター -->
+      <div class="search-filter-bar">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="内容で検索…" />
+          <button class="search-clear" id="searchClear" style="display:none;">✕</button>
+        </div>
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-cat="">すべて</button>
+          <button class="chip" data-cat="食費">🍽 食費</button>
+          <button class="chip" data-cat="消耗品費">🛒 消耗品費</button>
+          <button class="chip" data-cat="家賃">🏠 家賃</button>
+          <button class="chip" data-cat="光熱費">💡 光熱費</button>
+          <button class="chip" data-cat="その他">📦 その他</button>
+        </div>
+      </div>
+
       <div class="history-list" id="historyList">
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">🧾</div>

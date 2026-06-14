@@ -53,8 +53,18 @@ const modalText     = document.getElementById('modalText');
 const btnCancel     = document.getElementById('btnCancel');
 const btnConfirm    = document.getElementById('btnConfirm');
 
+// 検索・フィルター
+const searchInputEl = document.getElementById('searchInput');
+const searchClearEl = document.getElementById('searchClear');
+const filterChipsEl = document.getElementById('filterChips');
+
 let selectedPayer = 'A';
 let pendingAction = null;   // モーダルで確認待ちのアクション
+
+// 検索・フィルターの状態
+let allPayments   = [];   // Firestoreから取得した全件
+let filterCat     = '';   // 選択中のカテゴリー（空文字列=すべて）
+let searchQuery   = '';   // 検索クエリ
 
 // ── ユーティリティ ─────────────────────────────────────────
 function formatYen(n) {
@@ -218,10 +228,13 @@ function startListeners(code) {
 
 // ── レンダリング ───────────────────────────────────────────
 function renderAll(payments) {
+  // 全件を保存（合計はフィルター前の全件で計算）
+  allPayments = payments;
+
   const nameA = nameAEl.value || '自分';
   const nameB = nameBEl.value || '相手';
 
-  // 合計
+  // 合計（全件ベース）
   const totalA = payments.filter(p => p.payer === 'A').reduce((s, p) => s + p.amount, 0);
   const totalB = payments.filter(p => p.payer === 'B').reduce((s, p) => s + p.amount, 0);
   amountAEl.textContent = formatYen(totalA);
@@ -245,20 +258,46 @@ function renderAll(payments) {
     settleBanner.style.display = 'flex';
   }
 
-  // 件数
-  historyCountEl.textContent = `${payments.length}件`;
+  // フィルター済んだ履歴を描画
+  renderHistory(nameA, nameB);
+}
 
-  // 履歴リスト
-  const existing = historyListEl.querySelectorAll('.history-item');
+function renderHistory(nameA, nameB) {
+  // フィルター：カテゴリー
+  let filtered = filterCat
+    ? allPayments.filter(p => p.category === filterCat)
+    : [...allPayments];
+
+  // フィルター：検索クエリ
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      (p.desc || '').toLowerCase().includes(q)
+    );
+  }
+
+  // 件数表示（フィルター後の件数）
+  historyCountEl.textContent = `${filtered.length}件`;
+
+  // 既存アイテムを削除
+  const existing = historyListEl.querySelectorAll('.history-item, .no-results');
   existing.forEach(el => el.remove());
 
-  if (payments.length === 0) {
+  if (allPayments.length === 0) {
     emptyStateEl.style.display = 'block';
     return;
   }
   emptyStateEl.style.display = 'none';
 
-  payments.forEach(p => {
+  if (filtered.length === 0) {
+    const noRes = document.createElement('div');
+    noRes.className = 'no-results';
+    noRes.textContent = '該当する履歴がありません';
+    historyListEl.appendChild(noRes);
+    return;
+  }
+
+  filtered.forEach(p => {
     const name = p.payer === 'A' ? nameA : nameB;
     const catIcon = CATEGORY_ICON[p.category] || '📦';
     const catLabel = p.category || 'その他';
@@ -447,3 +486,39 @@ if (savedRoom) {
 
 // ── Payer 初期化 ──────────────────────────────────────────
 setPayer('A');
+
+// ── 検索・フィルター ───────────────────────────────────────
+// 検索入力
+searchInputEl.addEventListener('input', () => {
+  searchQuery = searchInputEl.value.trim();
+  searchClearEl.style.display = searchQuery ? 'block' : 'none';
+  const nameA = nameAEl.value || '自分';
+  const nameB = nameBEl.value || '相手';
+  renderHistory(nameA, nameB);
+});
+
+// 検索クリアボタン
+searchClearEl.addEventListener('click', () => {
+  searchInputEl.value = '';
+  searchQuery = '';
+  searchClearEl.style.display = 'none';
+  searchInputEl.focus();
+  const nameA = nameAEl.value || '自分';
+  const nameB = nameBEl.value || '相手';
+  renderHistory(nameA, nameB);
+});
+
+// カテゴリーチップ
+filterChipsEl.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+
+  // アクティブ切り替え
+  filterChipsEl.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+
+  filterCat = chip.dataset.cat;
+  const nameA = nameAEl.value || '自分';
+  const nameB = nameBEl.value || '相手';
+  renderHistory(nameA, nameB);
+});

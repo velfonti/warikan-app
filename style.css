@@ -789,6 +789,107 @@ h1 {
   border: 1px solid var(--color-border);
 }
 
+/* ===========================
+   SEARCH & FILTER
+=========================== */
+.search-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 36px 10px 36px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: var(--font-jp);
+  outline: none;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  border-color: var(--color-a);
+  box-shadow: 0 0 0 3px var(--color-a-light);
+}
+
+.search-input::placeholder { color: var(--color-text-muted); }
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.search-clear:hover { color: var(--color-text); }
+
+/* Filter chips */
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-family: var(--font-jp);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.chip:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--color-text);
+}
+
+.chip.active {
+  background: var(--color-a-light);
+  border-color: var(--color-a);
+  color: var(--color-a);
+  font-weight: 600;
+}
+
+/* フィルター結果なし */
+.no-results {
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
 .history-list {
   display: flex;
   flex-direction: column;
