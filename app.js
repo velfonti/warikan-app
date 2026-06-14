@@ -58,8 +58,13 @@ const searchInputEl = document.getElementById('searchInput');
 const searchClearEl = document.getElementById('searchClear');
 const filterChipsEl = document.getElementById('filterChips');
 
-let selectedPayer = 'A';
-let pendingAction = null;   // モーダルで確認待ちのアクション
+// 自分はどちら？
+const meBtnA        = document.getElementById('meBtnA');
+const meBtnB        = document.getElementById('meBtnB');
+
+let selectedPayer  = 'A';
+let pendingAction  = null;   // モーダルで確認待ちのアクション
+let myIdentity     = localStorage.getItem('warikan_me') || 'A'; // 自分はAかBか
 
 // 検索・フィルターの状態
 let allPayments   = [];   // Firestoreから取得した全件
@@ -174,6 +179,9 @@ async function enterRoom(code) {
 
     connStatus.style.display = 'none';
     showToast(`🔗 ルーム ${code} に入室しました`);
+
+    // URLパラメーターがあれば自動登録
+    await handleUrlParams();
 
   } catch (e) {
     console.error(e);
@@ -522,3 +530,77 @@ filterChipsEl.addEventListener('click', e => {
   const nameB = nameBEl.value || '相手';
   renderHistory(nameA, nameB);
 });
+
+// ── URLパラメーター自動登録（iOSショートカット連携） ─────────────────
+async function handleUrlParams() {
+  const params     = new URLSearchParams(window.location.search);
+  const desc       = params.get('desc');
+  const amount     = parseInt(params.get('amount'), 10);
+  const payerParam = (params.get('payer') || 'me').toLowerCase();
+  const cat        = params.get('cat') || '食費';
+  const autosubmit = params.get('autosubmit') === '1';
+
+  if (!desc || !amount || !autosubmit) return;
+  if (!currentRoomCode) return;
+
+  // 'me' / 'other' を A/B に変換
+  let resolvedPayer;
+  if (payerParam === 'me') {
+    resolvedPayer = myIdentity;                              // 自分
+  } else if (payerParam === 'other') {
+    resolvedPayer = myIdentity === 'A' ? 'B' : 'A';          // 相手
+  } else {
+    resolvedPayer = payerParam.toUpperCase() === 'B' ? 'B' : 'A'; // A/B直指定
+  }
+
+  // フォームにセット
+  descInputEl.value   = desc;
+  amountInputEl.value = amount;
+  categorySelEl.value = cat;
+  setPayer(resolvedPayer);
+
+  // Firestoreに登録
+  try {
+    await paymentsRef(currentRoomCode).add({
+      payer:    resolvedPayer,
+      desc,
+      category: cat,
+      amount,
+      date:     new Date().toISOString(),
+    });
+
+    history.replaceState({}, '', window.location.pathname);
+    showToast(`✅ 「${desc}」 ${formatYen(amount)} を登録しました`);
+
+    descInputEl.value   = '';
+    amountInputEl.value = '';
+    categorySelEl.value = '食費';
+
+  } catch(e) {
+    console.error(e);
+    showToast('❌ 自動登録に失敗しました');
+  }
+}
+
+// ── 自分はどちら？の設定 ──────────────────────────────────
+function updateMeBtnLabels() {
+  const nameA = nameAEl.value || '自分';
+  const nameB = nameBEl.value || '相手';
+  meBtnA.textContent = `${nameA}（A）`;
+  meBtnB.textContent = `${nameB}（B）`;
+}
+
+function setMyIdentity(id) {
+  myIdentity = id;
+  localStorage.setItem('warikan_me', id);
+  meBtnA.classList.toggle('active', id === 'A');
+  meBtnB.classList.toggle('active', id === 'B');
+  updateMeBtnLabels();
+}
+
+meBtnA.addEventListener('click', () => setMyIdentity('A'));
+meBtnB.addEventListener('click', () => setMyIdentity('B'));
+
+// 初期化
+setMyIdentity(myIdentity);
+
