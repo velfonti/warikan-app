@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>わりかん | 2人のお会計を簡単に</title>
+  <meta name="description" content="2人での割り勘を簡単に管理。支払いを都度記録して、最後にまとめて精算できます。" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c6af0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="わりかん" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-logo">
+          <span class="logo-icon">💸</span>
+          <h1>わりかん</h1>
+        </div>
+        <button class="btn-reset" id="btnReset" title="リセット">🗑 リセット</button>
+      </div>
+    </header>
+
+    <!-- Name Settings -->
+    <section class="name-section card" id="nameSection">
+      <h2 class="section-title">メンバー設定</h2>
+      <div class="name-inputs">
+        <div class="name-field">
+          <span class="avatar avatar-a">A</span>
+          <input type="text" id="nameA" class="name-input" placeholder="名前を入力" maxlength="10" value="自分" />
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="name-field">
+          <span class="avatar avatar-b">B</span>
+          <input type="text" id="nameB" class="name-input" placeholder="名前を入力" maxlength="10" value="相手" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary Cards -->
+    <section class="summary-section">
+      <div class="summary-card card-a" id="cardA">
+        <div class="summary-label" id="labelA">自分</div>
+        <div class="summary-amount" id="amountA">¥0</div>
+        <div class="summary-sub">支払い合計</div>
+      </div>
+      <div class="balance-center">
+        <div class="balance-label">差額</div>
+        <div class="balance-amount" id="balanceAmount">¥0</div>
+        <div class="balance-direction" id="balanceDirection">イーブン 🤝</div>
+      </div>
+      <div class="summary-card card-b" id="cardB">
+        <div class="summary-label" id="labelB">相手</div>
+        <div class="summary-amount" id="amountB">¥0</div>
+        <div class="summary-sub">支払い合計</div>
+      </div>
+    </section>
+
+    <!-- Settlement Banner -->
+    <div class="settlement-banner" id="settlementBanner" style="display:none;">
+      <span class="settlement-icon">💳</span>
+      <span class="settlement-text" id="settlementText"></span>
+    </div>
+
+    <!-- Add Payment Form -->
+    <section class="form-section card">
+      <h2 class="section-title">支払いを追加</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="payerSelect">支払った人</label>
+          <div class="payer-toggle">
+            <button class="payer-btn active" id="payerBtnA" data-payer="A">自分</button>
+            <button class="payer-btn" id="payerBtnB" data-payer="B">相手</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="descInput">内容</label>
+          <input type="text" id="descInput" class="form-input" placeholder="例：ランチ、映画チケット…" maxlength="30" />
+        </div>
+        <div class="form-group">
+          <label for="amountInput">金額（円）</label>
+          <div class="amount-wrapper">
+            <span class="yen-symbol">¥</span>
+            <input type="number" id="amountInput" class="form-input amount-input" placeholder="0" min="1" max="9999999" />
+          </div>
+        </div>
+      </div>
+      <button class="btn-add" id="btnAdd">
+        <span class="btn-icon">＋</span> 追加する
+      </button>
+    </section>
+
+    <!-- History -->
+    <section class="history-section">
+      <div class="history-header">
+        <h2 class="section-title">履歴</h2>
+        <span class="history-count" id="historyCount">0件</span>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🧾</div>
+          <p>まだ支払いがありません</p>
+          <p class="empty-sub">上のフォームから追加してみましょう</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none;">
+    <div class="modal card">
+      <div class="modal-icon">🗑</div>
+      <p class="modal-text">この支払い記録を削除しますか？</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancel">キャンセル</button>
+        <button class="btn-confirm" id="btnConfirm">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
