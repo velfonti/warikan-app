@@ -97,11 +97,275 @@ h1 {
   letter-spacing: 0.04em;
 }
 
+/* ===========================
+   ROOM SCREEN
+=========================== */
+.room-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.room-inner {
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.room-logo {
+  text-align: center;
+}
+
+.room-logo .logo-icon {
+  font-size: 52px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.room-tagline {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.room-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-create {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--color-a), var(--color-b));
+  color: white;
+  font-size: 16px;
+  font-family: var(--font-jp);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.04em;
+}
+
+.btn-create:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(124,106,240,0.45);
+}
+
+.room-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.room-divider::before,
+.room-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.join-group {
+  display: flex;
+  gap: 8px;
+}
+
+.room-code-input {
+  flex: 1;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--color-text);
+  font-size: 16px;
+  font-family: var(--font-en);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  outline: none;
+  transition: var(--transition);
+}
+
+.room-code-input:focus {
+  border-color: var(--color-a);
+  box-shadow: 0 0 0 3px var(--color-a-light);
+}
+
+.room-code-input::placeholder {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  letter-spacing: 0;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.btn-join {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-a);
+  background: var(--color-a-light);
+  color: var(--color-a);
+  font-size: 14px;
+  font-family: var(--font-jp);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-join:hover {
+  background: var(--color-a);
+  color: white;
+}
+
+.room-hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.conn-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.conn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.conn-dot.connecting {
+  background: var(--color-a);
+  animation: pulse 1.2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ===========================
+   HEADER (アプリ画面)
+=========================== */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.room-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.room-badge:hover {
+  border-color: var(--color-a);
+}
+
+.room-badge-icon { font-size: 12px; }
+
+#roomBadgeCode {
+  font-family: var(--font-en);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-a);
+  letter-spacing: 0.08em;
+}
+
+.btn-leave {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-jp);
+  transition: var(--transition);
+}
+
+.btn-leave:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* 同期バー */
+.sync-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.sync-dot.live {
+  background: var(--color-success);
+  box-shadow: 0 0 6px rgba(74,222,128,0.5);
+}
+
+.sync-dot.syncing {
+  background: var(--color-a);
+  animation: pulse 1s ease infinite;
+}
+
+.sync-dot.error {
+  background: var(--color-danger);
+}
+
+/* Danger Zone */
+.danger-zone {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+}
+
 .btn-reset {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
-  padding: 8px 14px;
+  padding: 8px 18px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   cursor: pointer;
@@ -335,6 +599,49 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* 内容＋分類を横並びに */
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-group--category {
+  flex: 0 0 130px !important;
+}
+
+/* Select */
+.select-wrapper {
+  position: relative;
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 32px;
+}
+
+.form-select:focus {
+  border-color: var(--color-a);
+  box-shadow: 0 0 0 3px var(--color-a-light);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  pointer-events: none;
 }
 
 .form-group label {
@@ -579,6 +886,20 @@ h1 {
   font-family: var(--font-en);
   white-space: nowrap;
   color: var(--color-text);
+}
+
+/* Category badge */
+.item-category {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  letter-spacing: 0.03em;
 }
 
 .item-delete {

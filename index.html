@@ -17,7 +17,41 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
+
+  <!-- ===================== ルーム選択画面 ===================== -->
+  <div class="room-screen" id="roomScreen">
+    <div class="room-inner">
+      <div class="room-logo">
+        <span class="logo-icon">💸</span>
+        <h1>わりかん</h1>
+        <p class="room-tagline">2人の支払いをリアルタイムで共有</p>
+      </div>
+
+      <div class="room-card">
+        <button class="btn-create" id="btnCreate">
+          <span>✨</span> 新しいルームを作成
+        </button>
+        <div class="room-divider"><span>または</span></div>
+        <div class="join-group">
+          <input type="text" id="roomCodeInput" class="room-code-input"
+            placeholder="ルームコードを入力（例: ABC-123）"
+            maxlength="7" autocomplete="off" spellcheck="false" />
+          <button class="btn-join" id="btnJoin">参加</button>
+        </div>
+      </div>
+
+      <p class="room-hint">💡 ルームコードを相手にLINEなどで共有すると、同じデータを見られます</p>
+
+      <!-- 接続状態 -->
+      <div class="conn-status" id="connStatus" style="display:none;">
+        <span class="conn-dot connecting"></span>
+        <span id="connLabel">接続中…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== メインアプリ ===================== -->
+  <div class="app-container" id="appContainer" style="display:none;">
 
     <!-- Header -->
     <header class="app-header">
@@ -26,7 +60,18 @@
           <span class="logo-icon">💸</span>
           <h1>わりかん</h1>
         </div>
-        <button class="btn-reset" id="btnReset" title="リセット">🗑 リセット</button>
+        <div class="header-right">
+          <div class="room-badge" id="roomBadge" title="ルームコード">
+            <span class="room-badge-icon">🔗</span>
+            <span id="roomBadgeCode">---</span>
+          </div>
+          <button class="btn-leave" id="btnLeave" title="ルームを離れる">← 退出</button>
+        </div>
+      </div>
+      <!-- リアルタイム接続状態 -->
+      <div class="sync-bar" id="syncBar">
+        <span class="sync-dot" id="syncDot"></span>
+        <span class="sync-label" id="syncLabel">同期中…</span>
       </div>
     </header>
 
@@ -48,7 +93,7 @@
 
     <!-- Summary Cards -->
     <section class="summary-section">
-      <div class="summary-card card-a" id="cardA">
+      <div class="summary-card card-a">
         <div class="summary-label" id="labelA">自分</div>
         <div class="summary-amount" id="amountA">¥0</div>
         <div class="summary-sub">支払い合計</div>
@@ -58,7 +103,7 @@
         <div class="balance-amount" id="balanceAmount">¥0</div>
         <div class="balance-direction" id="balanceDirection">イーブン 🤝</div>
       </div>
-      <div class="summary-card card-b" id="cardB">
+      <div class="summary-card card-b">
         <div class="summary-label" id="labelB">相手</div>
         <div class="summary-amount" id="amountB">¥0</div>
         <div class="summary-sub">支払い合計</div>
@@ -76,15 +121,30 @@
       <h2 class="section-title">支払いを追加</h2>
       <div class="form-grid">
         <div class="form-group">
-          <label for="payerSelect">支払った人</label>
+          <label>支払った人</label>
           <div class="payer-toggle">
             <button class="payer-btn active" id="payerBtnA" data-payer="A">自分</button>
             <button class="payer-btn" id="payerBtnB" data-payer="B">相手</button>
           </div>
         </div>
-        <div class="form-group">
-          <label for="descInput">内容</label>
-          <input type="text" id="descInput" class="form-input" placeholder="例：ランチ、映画チケット…" maxlength="30" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="descInput">内容</label>
+            <input type="text" id="descInput" class="form-input" placeholder="例：ランチ、映画チケット…" maxlength="30" />
+          </div>
+          <div class="form-group form-group--category">
+            <label for="categorySelect">分類</label>
+            <div class="select-wrapper">
+              <select id="categorySelect" class="form-input form-select">
+                <option value="食費">🍽 食費</option>
+                <option value="消耗品費">🛒 消耗品費</option>
+                <option value="家賃">🏠 家賃</option>
+                <option value="光熱費">💡 光熱費</option>
+                <option value="その他">📦 その他</option>
+              </select>
+              <span class="select-arrow">▾</span>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="amountInput">金額（円）</label>
@@ -114,6 +174,11 @@
       </div>
     </section>
 
+    <!-- Danger Zone -->
+    <div class="danger-zone">
+      <button class="btn-reset" id="btnReset">🗑 全履歴をリセット</button>
+    </div>
+
   </div>
 
   <!-- Toast -->
@@ -122,8 +187,8 @@
   <!-- Confirm Modal -->
   <div class="modal-overlay" id="modalOverlay" style="display:none;">
     <div class="modal card">
-      <div class="modal-icon">🗑</div>
-      <p class="modal-text">この支払い記録を削除しますか？</p>
+      <div class="modal-icon" id="modalIcon">🗑</div>
+      <p class="modal-text" id="modalText">この支払い記録を削除しますか？</p>
       <div class="modal-actions">
         <button class="btn-cancel" id="btnCancel">キャンセル</button>
         <button class="btn-confirm" id="btnConfirm">削除する</button>
@@ -131,7 +196,17 @@
     </div>
   </div>
 
+  <!-- Firebase SDK (v10 modular via CDN compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase設定 -->
+  <script src="firebase-config.js"></script>
+
+  <!-- アプリ本体 -->
   <script src="app.js"></script>
+
+  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
